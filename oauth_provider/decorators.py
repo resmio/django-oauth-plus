@@ -1,4 +1,5 @@
 import oauth2 as oauth
+import collections
 
 try:
     from functools import update_wrapper
@@ -7,10 +8,10 @@ except ImportError:
 
 from django.utils.translation import ugettext as _
 
-from responses import INVALID_PARAMS_RESPONSE, INVALID_CONSUMER_RESPONSE, COULD_NOT_VERIFY_OAUTH_REQUEST_RESPONSE, INVALID_SCOPE_RESPONSE
-from utils import initialize_server_request, send_oauth_error, get_oauth_request, verify_oauth_request
-from consts import OAUTH_PARAMETERS_NAMES
-from store import store, InvalidTokenError, InvalidConsumerError
+from .responses import INVALID_PARAMS_RESPONSE, INVALID_CONSUMER_RESPONSE, COULD_NOT_VERIFY_OAUTH_REQUEST_RESPONSE, INVALID_SCOPE_RESPONSE
+from .utils import initialize_server_request, send_oauth_error, get_oauth_request, verify_oauth_request
+from .consts import OAUTH_PARAMETERS_NAMES
+from .store import store, InvalidTokenError, InvalidConsumerError
 from functools import wraps
 
 
@@ -28,7 +29,7 @@ class CheckOauth(object):
         self.scope_name = scope_name
 
     def __new__(cls, arg=None):
-        if not callable(arg):
+        if not isinstance(arg, collections.Callable):
             return super(CheckOauth, cls).__new__(cls)
         else:
             obj =  super(CheckOauth, cls).__new__(cls)

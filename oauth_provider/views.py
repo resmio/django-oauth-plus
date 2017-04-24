@@ -1,4 +1,4 @@
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -10,14 +10,14 @@ from django.core.urlresolvers import get_callable
 
 import oauth2 as oauth
 
-from decorators import oauth_required
-from forms import AuthorizeRequestTokenForm
+from .decorators import oauth_required
+from .forms import AuthorizeRequestTokenForm
 from oauth_provider.compat import UnsafeRedirect
-from responses import INVALID_PARAMS_RESPONSE, INVALID_CONSUMER_RESPONSE, COULD_NOT_VERIFY_OAUTH_REQUEST_RESPONSE
-from store import store, InvalidConsumerError, InvalidTokenError
-from utils import verify_oauth_request, get_oauth_request, require_params, send_oauth_error
-from utils import is_xauth_request
-from consts import OUT_OF_BAND
+from .responses import INVALID_PARAMS_RESPONSE, INVALID_CONSUMER_RESPONSE, COULD_NOT_VERIFY_OAUTH_REQUEST_RESPONSE
+from .store import store, InvalidConsumerError, InvalidTokenError
+from .utils import verify_oauth_request, get_oauth_request, require_params, send_oauth_error
+from .utils import is_xauth_request
+from .consts import OUT_OF_BAND
 
 OAUTH_AUTHORIZE_VIEW = 'OAUTH_AUTHORIZE_VIEW'
 OAUTH_CALLBACK_VIEW = 'OAUTH_CALLBACK_VIEW'
@@ -47,7 +47,7 @@ def request_token(request):
 
     try:
         request_token = store.create_request_token(request, oauth_request, consumer, oauth_request['oauth_callback'])
-    except oauth.Error, err:
+    except oauth.Error as err:
         return send_oauth_error(err)
 
     ret = urlencode({
@@ -95,7 +95,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
                 try:
                     view_callable = get_callable(callback_view_str)
                 except AttributeError:
-                    raise Exception, "%s view doesn't exist." % callback_view_str
+                    raise Exception("%s view doesn't exist." % callback_view_str)
 
                 # try to treat it as Class Based View (CBV)
                 try:
@@ -114,7 +114,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
         try:
             view_callable = get_callable(authorize_view_str)
         except AttributeError:
-            raise Exception, "%s view doesn't exist." % authorize_view_str
+            raise Exception("%s view doesn't exist." % authorize_view_str)
 
         # try to treat it as Class Based View (CBV)
         try:
@@ -198,7 +198,7 @@ def access_token(request):
             #request_token = store.create_request_token(request, oauth_request, consumer, oauth_request.get('oauth_callback'))
             request_token = store.create_request_token(request, oauth_request, consumer, OUT_OF_BAND)
             request_token = store.authorize_request_token(request, oauth_request, request_token)
-        except oauth.Error, err:
+        except oauth.Error as err:
             return send_oauth_error(err)
 
     access_token = store.create_access_token(request, oauth_request, consumer, request_token)

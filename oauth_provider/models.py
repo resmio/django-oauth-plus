@@ -1,6 +1,6 @@
 import uuid
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 from time import time
 import warnings
 import oauth2 as oauth
@@ -20,7 +20,7 @@ class Nonce(models.Model):
     timestamp = models.PositiveIntegerField(db_index=True)
     
     def __unicode__(self):
-        return u"Nonce %s for %s" % (self.key, self.consumer_key)
+        return "Nonce %s for %s" % (self.key, self.consumer_key)
 
 
 class Scope(models.Model):
@@ -29,7 +29,7 @@ class Scope(models.Model):
     is_readonly = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return u"Resource %s with url %s" % (self.name, self.url)
+        return "Resource %s with url %s" % (self.name, self.url)
 
 
 class Resource(Scope):
@@ -54,7 +54,7 @@ class Consumer(models.Model):
     xauth_allowed = models.BooleanField("Allow xAuth", default = False)
         
     def __unicode__(self):
-        return u"Consumer %s with key %s" % (self.name, self.key)
+        return "Consumer %s with key %s" % (self.name, self.key)
 
     def generate_random_codes(self):
         """
@@ -67,13 +67,13 @@ class Consumer(models.Model):
 
 
 def default_token_timestamp():
-    return long(time())
+    return int(time())
 
 
 class Token(models.Model):
     REQUEST = 1
     ACCESS = 2
-    TOKEN_TYPES = ((REQUEST, u'Request'), (ACCESS, u'Access'))
+    TOKEN_TYPES = ((REQUEST, 'Request'), (ACCESS, 'Access'))
     
     key = models.CharField(max_length=KEY_SIZE, null=True, blank=True)
     secret = models.CharField(max_length=SECRET_SIZE, null=True, blank=True)
@@ -101,7 +101,7 @@ class Token(models.Model):
     objects = TokenManager()
     
     def __unicode__(self):
-        return u"%s Token %s for %s" % (self.get_token_type_display(), self.key, self.consumer)
+        return "%s Token %s for %s" % (self.get_token_type_display(), self.key, self.consumer)
 
     def to_string(self, only_key=False):
         token_dict = {
@@ -116,7 +116,7 @@ class Token(models.Model):
             del token_dict['oauth_token_secret']
             del token_dict['oauth_callback_confirmed']
 
-        return urllib.urlencode(token_dict)
+        return urllib.parse.urlencode(token_dict)
 
     def generate_random_codes(self):
         """
@@ -132,7 +132,7 @@ class Token(models.Model):
         OAuth 1.0a, append the oauth_verifier.
         """
         if self.callback and self.verifier:
-            parts = urlparse.urlparse(self.callback)
+            parts = urllib.parse.urlparse(self.callback)
             scheme, netloc, path, params, query, fragment = parts[:6]
             if query:
                 query = '%s&oauth_verifier=%s' % (query, self.verifier)
@@ -145,10 +145,10 @@ class Token(models.Model):
                 path = "?".join(path[:-1])
 
             if args is not None:
-                query += "&%s" % urllib.urlencode(args)
-            return urlparse.urlunparse((scheme, netloc, path, params,
+                query += "&%s" % urllib.parse.urlencode(args)
+            return urllib.parse.urlunparse((scheme, netloc, path, params,
                 query, fragment))
-        args = args is not None and "?%s" % urllib.urlencode(args) or ""
+        args = args is not None and "?%s" % urllib.parse.urlencode(args) or ""
         return self.callback and self.callback + args
 
     def set_callback(self, callback):

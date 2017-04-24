@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 from pprint import pprint
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from oauth_provider.models import Scope
 from oauth_provider.tests.auth import BaseOAuthTestCase, METHOD_POST_REQUEST_BODY, METHOD_AUTHORIZATION_HEADER, METHOD_URL_QUERY
 
@@ -29,7 +29,7 @@ class OAuthTestOauthRequiredDecorator(BaseOAuthTestCase):
         elif method==METHOD_URL_QUERY:
             response = self.c.get(url, parameters)
         elif method==METHOD_POST_REQUEST_BODY:
-            body = urllib.urlencode(parameters)
+            body = urllib.parse.urlencode(parameters)
             response = self.c.post(url, body, content_type="application/x-www-form-urlencoded")
         else:
             raise NotImplementedError

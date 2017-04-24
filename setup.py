@@ -6,8 +6,8 @@ def strip_comments(l):
     return l.split('#', 1)[0].strip()
 
 def reqs(*f):
-    return list(filter(None, [strip_comments(l) for l in open(
-        os.path.join(os.getcwd(), *f)).readlines()]))
+    return list([_f for _f in [strip_comments(l) for l in open(
+        os.path.join(os.getcwd(), *f)).readlines()] if _f])
 
 install_requires = reqs('requirements.txt')
 test_requires = reqs('test-requirements.txt')
